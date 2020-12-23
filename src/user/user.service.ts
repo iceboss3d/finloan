@@ -39,7 +39,8 @@ export class UserService {
             email,
             phoneNumber,
             password,
-            confirmOtp
+            confirmOtp,
+            role: "customer"
         });
         const from = { email: constants.confirmEmails.from, name: constants.confirmEmails.from };
         const personalization = [{
@@ -52,7 +53,7 @@ export class UserService {
             firstName,
         };
         const templateId = "d-f5198ee6ad3542a7944748f7d280d9a1";
-        const result = await mailer.send(from, personalization, dynamicTemplateData, templateId);
+        const result = mailer.send(from, personalization, dynamicTemplateData, templateId);
         console.log(result);
 
         const savedUser = await this.userRepository.save(user);

@@ -1,7 +1,7 @@
 {
     "type": "postgres",
     "host": "localhost",
-    "database": "chs",
+    "database": "finloan",
     "username": "postgres",
     "password": "Romina818!@",
     "port": "5432",

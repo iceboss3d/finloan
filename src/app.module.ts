@@ -11,9 +11,11 @@ import { HttpErrorFilter } from './shared/http-error.filter';
 import { LoggingInterceptor } from './shared/loggin.interceptor';
 import { HouseController } from './house/house.controller';
 import { HouseModule } from './house/house.module';
+import { AdminController } from './admin/admin.controller';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
-  imports: [AuthModule, TypeOrmModule.forRoot(), UserModule, HouseModule],
+  imports: [AuthModule, TypeOrmModule.forRoot(), UserModule, HouseModule, AdminModule],
   controllers: [AppController, AuthController, HouseController],
   providers: [AppService, AuthService, {
     provide: APP_FILTER,

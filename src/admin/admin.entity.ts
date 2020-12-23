@@ -2,13 +2,16 @@ import { IsEmail, IsNotEmpty, Length } from "class-validator";
 import { BeforeInsert, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import * as bcrypt from 'bcryptjs';
 
-@Entity('user')
-export class UserEntity {
-    @PrimaryGeneratedColumn('uuid') id!: string;
+@Entity('admin')
+export class AdminEntity {
+    @PrimaryGeneratedColumn('uuid')
+    id!: string
 
-    @CreateDateColumn() created!: Date;
+    @CreateDateColumn()
+    created!: Date;
 
-    @UpdateDateColumn() updated!: Date;
+    @UpdateDateColumn()
+    updated: Date;
 
     @Column()
     @Length(2, 30, {message: 'First Name must be at least 2 but not larger than 30 characters'})
@@ -35,36 +38,24 @@ export class UserEntity {
     @IsNotEmpty({ message: 'Password is required' })
     password!: string;
 
-    @Column({nullable: true})
-    isConfirmed: boolean;
-
-    @Column({nullable: true})
-    status: boolean;
-
-    @Column({type: 'text', nullable: true})
-    confirmOtp!: string;
-
-    @Column({nullable: true})
-    otpTries: number;
+    @Column()
+    @IsNotEmpty({message: 'Admin Role is Required'})
+    role!: string;
 
     @Column({nullable: true})
     passwordResetToken: string;
 
-    @Column()
-    @IsNotEmpty()
-    role: string;
+    @Column({type: "boolean"})
+    status: boolean;
 
     @BeforeInsert()
     async hashPassword(){
         this.password = await bcrypt.hash(this.password, 10);
-        this.isConfirmed = false;
-        this.otpTries = 0;
         this.status = false;
-        this.passwordResetToken = null;
     }
 
     toResponseObject(){
-        const {id, firstName, lastName, email, phoneNumber, status, role} = this;
-        return {id, firstName, lastName, email, phoneNumber, status, role}
+        const {id, firstName, lastName, email, phoneNumber, role, status} = this;
+        return {id, firstName, lastName, email, phoneNumber, role, status}
     }
 }
