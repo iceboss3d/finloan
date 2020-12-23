@@ -42,3 +42,15 @@ export class AdminActivateDTO {
     @Length(6, 6, {message: 'Token length must be 6 characters'})
     passwordResetToken!: string
 }
+
+export interface IAdmin {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phoneNumber: string;
+    role: string;
+    status: boolean;
+    iat: number;
+    exp: number;
+}

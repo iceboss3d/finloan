@@ -13,9 +13,10 @@ import { HouseController } from './house/house.controller';
 import { HouseModule } from './house/house.module';
 import { AdminController } from './admin/admin.controller';
 import { AdminModule } from './admin/admin.module';
+import { CustomerModule } from './customer/customer.module';
 
 @Module({
-  imports: [AuthModule, TypeOrmModule.forRoot(), UserModule, HouseModule, AdminModule],
+  imports: [AuthModule, TypeOrmModule.forRoot(), UserModule, HouseModule, AdminModule, CustomerModule],
   controllers: [AppController, AuthController, HouseController],
   providers: [AppService, AuthService, {
     provide: APP_FILTER,

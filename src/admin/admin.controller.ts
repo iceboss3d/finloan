@@ -1,7 +1,10 @@
-import { Body, Controller, Post, UsePipes } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards, UsePipes } from '@nestjs/common';
+import { AuthGuard } from 'src/shared/ath.guard';
 import { ValidationPipe } from 'src/shared/validation.pipe';
-import { AdminActivateDTO, AdminCreateDTO, AdminLoginDTO } from './admin.dto';
+import { Admin } from './admin.decorator';
+import { AdminActivateDTO, AdminCreateDTO, AdminLoginDTO, IAdmin } from './admin.dto';
 import { AdminService } from './admin.service';
+
 
 @Controller('api/admin/auth')
 export class AdminController {
@@ -9,8 +12,9 @@ export class AdminController {
     
     @Post('create')
     @UsePipes(new ValidationPipe())
-    createAdmin(@Body() data: AdminCreateDTO){
-        return this.adminService.createAdmin(data)
+    @UseGuards(new AuthGuard())
+    createAdmin(@Admin() admin: IAdmin, @Body() data: AdminCreateDTO){
+        return this.adminService.createAdmin(data, admin)
     }
 
     @Post('login')

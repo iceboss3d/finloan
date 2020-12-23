@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { apiResponse } from 'src/helpers/apiResponse';
 import { Repository } from 'typeorm';
-import { AdminActivateDTO, AdminCreateDTO, AdminLoginDTO } from './admin.dto';
+import { AdminActivateDTO, AdminCreateDTO, AdminLoginDTO, IAdmin } from './admin.dto';
 import { AdminEntity } from './admin.entity';
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
@@ -14,12 +14,14 @@ import { constants } from 'src/helpers/constants';
 export class AdminService {
     constructor(@InjectRepository(AdminEntity) private adminRepository: Repository<AdminEntity>) { }
 
-    async createAdmin(data: AdminCreateDTO) {
+    async createAdmin(data: AdminCreateDTO, adminData: IAdmin) {
+        if(adminData.role !== "super-admin"){
+            return apiResponse.unauthorizedResponse("Only Super Admins Can Create Admins");
+        }
         const passwordResetToken = new Utility().randomNumber(6);
         const { firstName, lastName, email, phoneNumber, password, role } = data;
 
         const admin = await this.adminRepository.create({firstName, lastName, email, phoneNumber, password, role, passwordResetToken});
-        console.log(admin.passwordResetToken);
         
         const savedAdmin = await this.adminRepository.save(admin);     
         const from = { email: constants.confirmEmails.from, name: constants.confirmEmails.from };
@@ -32,7 +34,6 @@ export class AdminService {
             otp: admin.passwordResetToken,
             firstName: admin.firstName,
         };
-        console.log(dynamicTemplateData);
         
         const templateId = "d-f5198ee6ad3542a7944748f7d280d9a1";
         const emailResponse = mailer.send(from, personalization, dynamicTemplateData, templateId);
