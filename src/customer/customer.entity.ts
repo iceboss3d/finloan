@@ -30,18 +30,18 @@ export class CustomerEntity {
     @Column()
     email: string;
 
-    @OneToOne(type => CustomerDataEntity, data => data.customer)
+    @OneToOne(type => CustomerDataEntity, data => data.customer, {cascade: true, eager: true})
     @JoinColumn()
     data: CustomerDataEntity;
 
-    @OneToOne(type => CustomerEmploymentEntity, employment => employment.customer)
+    @OneToOne(type => CustomerEmploymentEntity, employment => employment.customer, {cascade: true, eager: true})
     @JoinColumn()
     employment: CustomerEmploymentEntity;
 
-    @OneToOne(type => CustomerPaymentEntity, payment => payment.customer)
+    @OneToOne(type => CustomerPaymentEntity, payment => payment.customer, {cascade: true, eager: true})
     @JoinColumn()
     payment: CustomerPaymentEntity;
 
-    @ManyToOne(type => AdminEntity, createdBy => createdBy.customers)
+    @ManyToOne(type => AdminEntity, createdBy => createdBy.customers, {cascade: true, eager: true})
     createdBy: AdminEntity;
 }

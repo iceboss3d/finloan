@@ -29,7 +29,7 @@ export class CustomerService {
         if (userRole === "customer") {
             return apiResponse.unauthorizedResponse("Only Admins can view customers");
         }
-        const customers = await this.customerRepository.find({ relations: ['createdBy', 'data'] });
+        const customers = await this.customerRepository.find();
         return apiResponse.successResponseWithData("Successfully Fetched all Customers", customers);
     }
 
@@ -37,7 +37,7 @@ export class CustomerService {
         if (userRole === "customer") {
             return apiResponse.unauthorizedResponse("Only Admins can view customers");
         }
-        const customer = await this.customerRepository.findOne({ where: { id }, relations: ['createdBy'] });
+        const customer = await this.customerRepository.findOne({ where: { id }});
         return apiResponse.successResponseWithData("Successfully Fetched Customer", customer);
     }
 
@@ -55,7 +55,7 @@ export class CustomerService {
             return apiResponse.unauthorizedResponse("Only Admins can Update Customers Data");
         }
         const customer = await this.customerRepository.findOne({ where: { id } })
-        const customerData = this.customerDataRepository.create({ ...data, customer });
+        const customerData = this.customerDataRepository.create({ ...data, customer});
         await this.customerDataRepository.save(customerData);
         return apiResponse.successResponseWithData("Successfully Created Customer", customerData);
     }
@@ -74,9 +74,9 @@ export class CustomerService {
         if (role === "customer") {
             return apiResponse.unauthorizedResponse("Only Admins can Update Customers Employment");
         }
-        const customer = await this.customerRepository.findOne({ where: { id } })
+        const customer = await this.customerRepository.findOne({where: {id}});
         const customerPayment = this.customerPaymentRepository.create({ ...data, customer });
-        await this.customerEmploymentRepository.save(customerPayment);
+        await this.customerPaymentRepository.save(customerPayment);
         return apiResponse.successResponseWithData("Successfully Created Customer", customerPayment);
     }
 }
