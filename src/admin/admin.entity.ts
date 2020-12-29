@@ -1,6 +1,7 @@
 import { IsEmail, IsNotEmpty, Length } from "class-validator";
-import { BeforeInsert, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { BeforeInsert, Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import * as bcrypt from 'bcryptjs';
+import { CustomerEntity } from "src/customer/customer.entity";
 
 @Entity('admin')
 export class AdminEntity {
@@ -53,6 +54,9 @@ export class AdminEntity {
         this.password = await bcrypt.hash(this.password, 10);
         this.status = false;
     }
+
+    @OneToMany(type => CustomerEntity, customer => customer.createdBy)
+    customers: CustomerEntity[]
 
     toResponseObject(){
         const {id, firstName, lastName, email, phoneNumber, role, status} = this;
