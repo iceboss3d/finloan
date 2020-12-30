@@ -6,9 +6,9 @@ import { AdminActivateDTO, AdminCreateDTO, AdminLoginDTO, IAdmin } from './admin
 import { AdminEntity } from './admin.entity';
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
-import { Utility } from 'src/helpers/utility';
 import { mailer } from 'src/helpers/Mailer';
 import { constants } from 'src/helpers/constants';
+import { Utility } from 'src/helpers/utility';
 
 @Injectable()
 export class AdminService {

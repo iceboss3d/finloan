@@ -4,11 +4,11 @@ import { Repository } from 'typeorm';
 import { UserEntity } from './user.entity';
 import { LoginDTO, OtpDTO, UserDTO, PasswordResetDTO, EmailDTO } from './user.dto';
 import { apiResponse } from 'src/helpers/apiResponse';
-import { Utility } from 'src/helpers/utility';
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import { mailer } from 'src/helpers/Mailer';
 import { constants } from 'src/helpers/constants';
+import { Utility } from 'src/helpers/utility';
 
 @Injectable()
 export class UserService {
