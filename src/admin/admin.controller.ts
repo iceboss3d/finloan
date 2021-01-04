@@ -12,9 +12,9 @@ export class AdminController {
     
     @Post('create')
     @UsePipes(new ValidationPipe())
-    //@UseGuards(new AuthGuard())
-    createAdmin(@Body() data: AdminCreateDTO){
-        return this.adminService.createAdmin(data)
+    @UseGuards(new AuthGuard())
+    createAdmin(@Body() data: AdminCreateDTO, @Admin() admin: IAdmin){
+        return this.adminService.createAdmin(data, admin)
     }
 
     @Post('login')
