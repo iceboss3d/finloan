@@ -14,10 +14,12 @@ import { HouseModule } from './house/house.module';
 import { AdminController } from './admin/admin.controller';
 import { AdminModule } from './admin/admin.module';
 import { CustomerModule } from './customer/customer.module';
+import { ApplicationController } from './application/application.controller';
+import { ApplicationModule } from './application/application.module';
 
 @Module({
-  imports: [AuthModule, TypeOrmModule.forRoot(), UserModule, HouseModule, AdminModule, CustomerModule],
-  controllers: [AppController, AuthController, HouseController],
+  imports: [AuthModule, TypeOrmModule.forRoot(), UserModule, HouseModule, AdminModule, CustomerModule, ApplicationModule],
+  controllers: [AppController, AuthController, HouseController, ApplicationController],
   providers: [AppService, AuthService, {
     provide: APP_FILTER,
     useClass: HttpErrorFilter
