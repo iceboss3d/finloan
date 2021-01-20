@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards, UsePipes } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards, UsePipes, Get } from '@nestjs/common';
 import { AuthGuard } from 'src/shared/ath.guard';
 import { ValidationPipe } from 'src/shared/validation.pipe';
 import { User } from 'src/user/user.decorator';
@@ -14,8 +14,14 @@ export class AdminController {
     @Post('create')
     @UsePipes(new ValidationPipe())
     @UseGuards(new AuthGuard())
-    createAdmin(@Body() data: AdminCreateDTO, @User() user){
-        return this.adminService.createAdmin(data, user)
+    createAdmin(@Body() data: AdminCreateDTO, @Admin() admin: IAdmin){
+        return this.adminService.createAdmin(data, admin)
+    }
+
+    @Get()
+    @UseGuards(new AuthGuard())
+    listAdmin(@Admin() admin: IAdmin){
+        return this.adminService.listAdmin(admin);
     }
 
     @Post('login')

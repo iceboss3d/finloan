@@ -14,12 +14,26 @@ import { Utility } from 'src/helpers/utility';
 export class AdminService {
     constructor(@InjectRepository(AdminEntity) private adminRepository: Repository<AdminEntity>) { }
 
-    async createAdmin(data: AdminCreateDTO, adminData) {
+    async listAdmin(adminData: IAdmin) {
+        if(adminData.role !== "super-admin"){
+            return apiResponse.unauthorizedResponse("Only Super Admins Can Create Admins");
+        }
+        const admins = await this.adminRepository.find();
+        return apiResponse.successResponseWithData("Successfully Fetched Admins", admins);
+    }
+
+    async createAdmin(data: AdminCreateDTO, adminData: IAdmin) {
         if(adminData.role !== "super-admin"){
             return apiResponse.unauthorizedResponse("Only Super Admins Can Create Admins");
         }
         const passwordResetToken = new Utility().randomNumber(6);
         const { firstName, lastName, email, phoneNumber, password, role } = data;
+
+        const check = await this.adminRepository.findOne({where: {email}});
+
+        if(check){
+            return apiResponse.existingResponse("Admin with such Email already exists");
+        }
 
         const admin = await this.adminRepository.create({firstName, lastName, email, phoneNumber, password, role, passwordResetToken});
         
