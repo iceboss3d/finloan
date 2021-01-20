@@ -14,10 +14,10 @@ import { Utility } from 'src/helpers/utility';
 export class AdminService {
     constructor(@InjectRepository(AdminEntity) private adminRepository: Repository<AdminEntity>) { }
 
-    async createAdmin(data: AdminCreateDTO) {
-        // if(adminData.role !== "super-admin"){
-        //     return apiResponse.unauthorizedResponse("Only Super Admins Can Create Admins");
-        // }
+    async createAdmin(data: AdminCreateDTO, adminData) {
+        if(adminData.role !== "super-admin"){
+            return apiResponse.unauthorizedResponse("Only Super Admins Can Create Admins");
+        }
         const passwordResetToken = new Utility().randomNumber(6);
         const { firstName, lastName, email, phoneNumber, password, role } = data;
 
