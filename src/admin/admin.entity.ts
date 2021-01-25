@@ -63,3 +63,5 @@ export class AdminEntity {
         return {id, firstName, lastName, email, phoneNumber, role, status}
     }
 }
+
+export type TRole = "super-admin" | "reg-admin"

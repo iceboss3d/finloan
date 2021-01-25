@@ -35,7 +35,7 @@ export class AdminService {
             return apiResponse.existingResponse("Admin with such Email already exists");
         }
 
-        const admin = await this.adminRepository.create({firstName, lastName, email, phoneNumber, password, role, passwordResetToken});
+        const admin = this.adminRepository.create({firstName, lastName, email, phoneNumber, password, role, passwordResetToken});
         
         const savedAdmin = await this.adminRepository.save(admin);     
         const from = { email: constants.confirmEmails.from, name: constants.confirmEmails.from };

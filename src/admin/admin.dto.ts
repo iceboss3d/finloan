@@ -1,4 +1,5 @@
 import { IsEmail, IsNumber, IsString, Length } from "class-validator";
+import { TRole } from "./admin.entity";
 
 export class AdminCreateDTO {
     @IsString()
