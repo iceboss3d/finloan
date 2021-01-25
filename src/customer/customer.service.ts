@@ -4,7 +4,7 @@ import { IAdmin } from 'src/admin/admin.dto';
 import { AdminEntity } from 'src/admin/admin.entity';
 import { apiResponse } from 'src/helpers/apiResponse';
 import { Repository } from 'typeorm';
-import { CustomerCreateDTO, CustomerDataDTO, CustomerEmploymentDTO, CustomerPaymentDTO } from './customer.dto';
+import { CustomerCreateDTO, CustomerDataDTO, CustomerEmploymentDTO, CustomerPaymentDTO, PassportDTO } from './customer.dto';
 import { CustomerEntity } from './customer.entity';
 import { CustomerDataEntity } from './customerData.entity';
 import { CustomerEmploymentEntity } from './customerEmployment.entity';
@@ -78,5 +78,18 @@ export class CustomerService {
         const customerPayment = this.customerPaymentRepository.create({ ...data, customer });
         await this.customerPaymentRepository.save(customerPayment);
         return apiResponse.successResponseWithData("Successfully Created Customer", customerPayment);
+    }
+
+    async addPassport(id: string, role: string, data: PassportDTO) {
+        if(role === "customer") {
+            return apiResponse.unauthorizedResponse("Unauthorised");
+        }
+        const customer = await this.customerRepository.findOne({where: {id}});
+        
+        if(!customer){
+            return apiResponse.notFoundResponse("Customer not Found");
+        }
+        await this.customerDataRepository.update({customer}, {passportUrl: data.passportUrl});
+        return apiResponse.successResponse('Passport Added');
     }
 }

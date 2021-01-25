@@ -3,7 +3,7 @@ import { IAdmin } from 'src/admin/admin.dto';
 import { AuthGuard } from 'src/shared/ath.guard';
 import { ValidationPipe } from 'src/shared/validation.pipe';
 import { User } from 'src/user/user.decorator';
-import { CustomerCreateDTO, CustomerDataDTO, CustomerEmploymentDTO, CustomerPaymentDTO } from './customer.dto';
+import { CustomerCreateDTO, CustomerDataDTO, CustomerEmploymentDTO, CustomerPaymentDTO, PassportDTO } from './customer.dto';
 import { CustomerService } from './customer.service';
 
 @Controller('api/customer')
@@ -48,6 +48,12 @@ export class CustomerController {
     @UseGuards(new AuthGuard())
     addCustomerPayment(@User('role') user: string, @Body() data: CustomerPaymentDTO, @Param("customerId") id: string){
         return this.customerService.addCustomerPayment(id, user, data);
+    }
+
+    @Post('data/passport/:customerId')
+    @UseGuards(new AuthGuard())
+    addCustomerPassport(@User('role') user: string, @Body() data: PassportDTO, @Param('customerId') id: string) {
+        return this.customerService.addPassport(id, user, data);
     }
 
 }

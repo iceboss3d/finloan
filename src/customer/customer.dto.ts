@@ -70,3 +70,8 @@ export class CustomerPaymentDTO {
     @IsString()
     sortCode: string;
 }
+
+export class PassportDTO {
+    @IsString()
+    passportUrl: string;
+}
