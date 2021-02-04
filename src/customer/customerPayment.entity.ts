@@ -18,9 +18,6 @@ export class CustomerPaymentEntity {
     @Column()
     accountNumber: string;
 
-    @Column()
-    sortCode: string;
-
     @OneToOne(type => CustomerEntity, customer => customer.payment)
     customer: CustomerEntity
 }
