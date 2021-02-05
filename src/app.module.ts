@@ -16,16 +16,21 @@ import { AdminModule } from './admin/admin.module';
 import { CustomerModule } from './customer/customer.module';
 import { ApplicationController } from './application/application.controller';
 import { ApplicationModule } from './application/application.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
-  imports: [AuthModule, TypeOrmModule.forRoot(), UserModule, HouseModule, AdminModule, CustomerModule, ApplicationModule],
+  imports: [ServeStaticModule.forRoot({
+    rootPath: join(__dirname, '..', 'files'),
+    exclude: ['/api*'],
+  }), AuthModule, TypeOrmModule.forRoot(), UserModule, HouseModule, AdminModule, CustomerModule, ApplicationModule],
   controllers: [AppController, AuthController, HouseController, ApplicationController],
   providers: [AppService, AuthService, {
     provide: APP_FILTER,
     useClass: HttpErrorFilter
   }, {
-    provide: APP_INTERCEPTOR,
-    useClass: LoggingInterceptor,
-  }],
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
+    }],
 })
-export class AppModule {}
+export class AppModule { }

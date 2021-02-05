@@ -39,6 +39,9 @@ export class CustomerDataEntity {
     @Column()
     state: string;
 
+    @Column({nullable: true})
+    passportUrl: string;
+
     @OneToOne(type => CustomerEntity, customer => customer.data)
     customer: CustomerEntity;
 }

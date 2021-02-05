@@ -4,7 +4,7 @@ import { IAdmin } from 'src/admin/admin.dto';
 import { AdminEntity } from 'src/admin/admin.entity';
 import { apiResponse } from 'src/helpers/apiResponse';
 import { Repository } from 'typeorm';
-import { CustomerCreateDTO, CustomerDataDTO, CustomerEmploymentDTO, CustomerPaymentDTO } from './customer.dto';
+import { CustomerCreateDTO, CustomerDataDTO, CustomerEmploymentDTO, CustomerPaymentDTO, IFile } from './customer.dto';
 import { CustomerEntity } from './customer.entity';
 import { CustomerDataEntity } from './customerData.entity';
 import { CustomerEmploymentEntity } from './customerEmployment.entity';
@@ -37,7 +37,7 @@ export class CustomerService {
         if (userRole === "customer") {
             return apiResponse.unauthorizedResponse("Only Admins can view customers");
         }
-        const customer = await this.customerRepository.findOne({ where: { id }});
+        const customer = await this.customerRepository.findOne({ where: { id } });
         return apiResponse.successResponseWithData("Successfully Fetched Customer", customer);
     }
 
@@ -55,9 +55,22 @@ export class CustomerService {
             return apiResponse.unauthorizedResponse("Only Admins can Update Customers Data");
         }
         const customer = await this.customerRepository.findOne({ where: { id } })
-        const customerData = this.customerDataRepository.create({ ...data, customer});
+        const customerData = this.customerDataRepository.create({ ...data, customer });
         await this.customerDataRepository.save(customerData);
         return apiResponse.successResponseWithData("Successfully Created Customer", customerData);
+    }
+
+    async addCustomerPassport(id: string, role: string, data: IFile) {
+        if (role === "customer") {
+            return apiResponse.unauthorizedResponse("Only Admins can Update Customers Data");
+        }
+        const customer = await this.customerRepository.findOne({ where: { id } });
+        if (!customer) {
+            return apiResponse.notFoundResponse("Customer not found");
+        }
+        const passportUrl = data.destination.slice(1) + "/" + data.filename;
+        await this.customerDataRepository.update({ id: customer.data.id }, { passportUrl });
+        return apiResponse.successResponseWithData('Passport Uploaded', { passportUrl });
     }
 
     async addCustomerEmployment(id: string, role: string, data: CustomerEmploymentDTO) {
@@ -74,7 +87,7 @@ export class CustomerService {
         if (role === "customer") {
             return apiResponse.unauthorizedResponse("Only Admins can Update Customers Employment");
         }
-        const customer = await this.customerRepository.findOne({where: {id}});
+        const customer = await this.customerRepository.findOne({ where: { id } });
         const customerPayment = this.customerPaymentRepository.create({ ...data, customer });
         await this.customerPaymentRepository.save(customerPayment);
         return apiResponse.successResponseWithData("Successfully Created Customer", customerPayment);

@@ -1,9 +1,11 @@
-import { Body, Controller, Get, Param, Post, UseGuards, UsePipes } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UploadedFile, UseGuards, UseInterceptors, UsePipes } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer'
 import { IAdmin } from 'src/admin/admin.dto';
 import { AuthGuard } from 'src/shared/ath.guard';
 import { ValidationPipe } from 'src/shared/validation.pipe';
 import { User } from 'src/user/user.decorator';
-import { CustomerCreateDTO, CustomerDataDTO, CustomerEmploymentDTO, CustomerPaymentDTO } from './customer.dto';
+import { CustomerCreateDTO, CustomerDataDTO, CustomerEmploymentDTO, CustomerPaymentDTO, IFile } from './customer.dto';
 import { CustomerService } from './customer.service';
 
 @Controller('api/customer')
@@ -34,6 +36,22 @@ export class CustomerController {
     @UseGuards(new AuthGuard())
     addCustomerData(@User('role') user: string, @Body() data: CustomerDataDTO, @Param("customerId") id: string){
         return this.customerService.addCustomerData(id, user, data);
+    }
+
+    @Post('passport/:customerId')
+    @UseGuards(new AuthGuard())
+    @UseInterceptors(FileInterceptor('file', {
+        storage: diskStorage({
+            destination: './files',
+            filename: (req, file, cb) => {                
+                const fileNameSplit = file.originalname.split(".");
+                const fileExt = fileNameSplit[fileNameSplit.length - 1];
+                cb(null, `${Date.now()}.${fileExt}`);
+            }
+        })
+    }))
+    addCustomerPassport(@UploadedFile() file: IFile, @User('role') user: string, @Param('customerId') id: string){
+        return this.customerService.addCustomerPassport(id, user, file);
     }
 
     @Post('employment/:customerId')
