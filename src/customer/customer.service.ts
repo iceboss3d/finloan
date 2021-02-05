@@ -41,7 +41,7 @@ export class CustomerService {
         return apiResponse.successResponseWithData("Successfully Fetched Customer", customer);
     }
 
-    async createCustomer(user: Partial<IAdmin>, data: CustomerCreateDTO) {
+    async createCustomer(user: IAdmin, data: CustomerCreateDTO) {
         if (user.role === "customer") {
             return apiResponse.unauthorizedResponse("Only Admins can Create Customers");
         }
@@ -50,7 +50,19 @@ export class CustomerService {
         return apiResponse.successResponseWithData("Successfully Created Customer", customer);
     }
 
-    async addCustomerData(id: string, role: string, data: CustomerDataDTO) {
+    async updateCustomer(id: string, role: string, data: Partial<CustomerCreateDTO>) {
+        if(role === "customer") {
+            return apiResponse.unauthorizedResponse("Unauthorised");
+        }
+        const customer = await this.customerRepository.findOne({where: {id}});
+        if (!customer) {
+            return apiResponse.notFoundResponse("Customer not found");
+        }
+        await this.customerRepository.update({id}, data);
+        return apiResponse.successResponse("Customer Updated");
+    }
+
+    async addCustomerData(id: string, role: string, data: Partial<CustomerDataDTO>) {
         if (role === "customer") {
             return apiResponse.unauthorizedResponse("Only Admins can Update Customers Data");
         }
@@ -58,6 +70,18 @@ export class CustomerService {
         const customerData = this.customerDataRepository.create({ ...data, customer });
         await this.customerDataRepository.save(customerData);
         return apiResponse.successResponseWithData("Successfully Created Customer", customerData);
+    }
+    
+    async updateCustomerData(id: string, role: string, data: Partial<CustomerDataDTO>) {
+        if(role === "customer") {
+            return apiResponse.unauthorizedResponse("Unauthorised");
+        }
+        const customer = await this.customerRepository.findOne({where: {id}});
+        if (!customer) {
+            return apiResponse.notFoundResponse("Customer not found");
+        }
+        await this.customerDataRepository.update({id: customer.data.id}, data);
+        return apiResponse.successResponse("Customer Data Updated");
     }
 
     async addCustomerPassport(id: string, role: string, data: IFile) {
@@ -82,6 +106,18 @@ export class CustomerService {
         await this.customerEmploymentRepository.save(customerEmployment);
         return apiResponse.successResponseWithData("Successfully Created Customer", customerEmployment);
     }
+    
+    async updateCustomerEmployment(id: string, role: string, data: Partial<CustomerEmploymentDTO>) {
+        if(role === "customer") {
+            return apiResponse.unauthorizedResponse("Unauthorised");
+        }
+        const customer = await this.customerRepository.findOne({where: {id}});
+        if (!customer) {
+            return apiResponse.notFoundResponse("Customer not found");
+        }
+        await this.customerEmploymentRepository.update({id: customer.data.id}, data);
+        return apiResponse.successResponse("Customer Employment Updated");
+    }
 
     async addCustomerPayment(id: string, role: string, data: CustomerPaymentDTO) {
         if (role === "customer") {
@@ -91,5 +127,17 @@ export class CustomerService {
         const customerPayment = this.customerPaymentRepository.create({ ...data, customer });
         await this.customerPaymentRepository.save(customerPayment);
         return apiResponse.successResponseWithData("Successfully Created Customer", customerPayment);
+    }
+    
+    async updateCustomerPayment(id: string, role: string, data: Partial<CustomerPaymentDTO>) {
+        if(role === "customer") {
+            return apiResponse.unauthorizedResponse("Unauthorised");
+        }
+        const customer = await this.customerRepository.findOne({where: {id}});
+        if (!customer) {
+            return apiResponse.notFoundResponse("Customer not found");
+        }
+        await this.customerPaymentRepository.update({id: customer.data.id}, data);
+        return apiResponse.successResponse("Customer Payment Updated");
     }
 }
