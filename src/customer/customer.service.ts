@@ -92,7 +92,9 @@ export class CustomerService {
         if (!customer) {
             return apiResponse.notFoundResponse("Customer not found");
         }
-        const passportUrl = data.destination.slice(1) + "/" + data.filename;
+        const passportUrl = data.filename;
+        console.log(passportUrl);
+        
         await this.customerDataRepository.update({ id: customer.data.id }, { passportUrl });
         return apiResponse.successResponseWithData('Passport Uploaded', { passportUrl });
     }
