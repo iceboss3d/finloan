@@ -1,4 +1,7 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { AdminEntity } from "src/admin/admin.entity";
+import { CustomerEntity } from "src/customer/customer.entity";
+import { GuarantorEntity } from "src/guarantor/guarantor.entity";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity('application')
 export class ApplicationEntity {
@@ -21,5 +24,46 @@ export class ApplicationEntity {
     tenure: number;
 
     @Column()
-    interestRate: string;
+    interestRate: number;
+
+    @Column({default: false, nullable: true})
+    lineManagerApproval: boolean;
+
+    @Column({default: false})
+    ManagerApproval: boolean;
+
+    @ManyToOne(type => AdminEntity)
+    @JoinColumn()
+    lineManager: AdminEntity;
+
+    @ManyToOne(type => AdminEntity)
+    @JoinColumn()
+    Manager: AdminEntity;
+
+    @Column({nullable: true})
+    firstAppointmentLetter: string;
+
+    @Column({nullable: true})
+    confirmationLetter: string;
+
+    @Column({nullable: true})
+    lastPaySlip: string;
+
+    @Column({nullable: true})
+    verificationPrintout: string;
+
+    @Column({nullable: true})
+    letterOfIntroduction: string;
+
+    @ManyToOne(type => CustomerEntity, customer => customer.applications)
+    @JoinColumn()
+    customer: CustomerEntity;
+
+    @ManyToOne(type => GuarantorEntity, guarantor => guarantor.application)
+    @JoinColumn()
+    guarantor: GuarantorEntity;
+
+    @ManyToOne(type => AdminEntity)
+    @JoinColumn()
+    initiator: AdminEntity;
 }

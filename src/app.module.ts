@@ -24,7 +24,7 @@ import { join } from 'path';
     rootPath: join(__dirname, '..', 'files'),
     exclude: ['/api*'],
   }), AuthModule, TypeOrmModule.forRoot(), UserModule, HouseModule, AdminModule, CustomerModule, ApplicationModule],
-  controllers: [AppController, AuthController, HouseController, ApplicationController],
+  controllers: [AppController, AuthController, HouseController],
   providers: [AppService, AuthService, {
     provide: APP_FILTER,
     useClass: HttpErrorFilter
