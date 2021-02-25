@@ -16,7 +16,7 @@ export class AdminService {
 
     async listAdmin(adminData: IAdmin) {
         if(adminData.role !== "super-admin"){
-            return apiResponse.unauthorizedResponse("Only Super Admins Can Create Admins");
+            return apiResponse.unauthorizedResponse("Only Super Admins Can List Admins");
         }
         const admins = await this.adminRepository.find();
         return apiResponse.successResponseWithData("Successfully Fetched Admins", admins);

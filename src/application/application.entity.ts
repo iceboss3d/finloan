@@ -55,15 +55,15 @@ export class ApplicationEntity {
     @Column({nullable: true})
     letterOfIntroduction: string;
 
-    @ManyToOne(type => CustomerEntity, customer => customer.applications)
+    @ManyToOne(type => CustomerEntity, customer => customer.applications, {cascade: true, eager: true})
     @JoinColumn()
     customer: CustomerEntity;
 
-    @ManyToOne(type => GuarantorEntity, guarantor => guarantor.application)
+    @ManyToOne(type => GuarantorEntity, guarantor => guarantor.application, {cascade: true, eager: true})
     @JoinColumn()
     guarantor: GuarantorEntity;
 
-    @ManyToOne(type => AdminEntity)
+    @ManyToOne(type => AdminEntity, {cascade: true, eager: true})
     @JoinColumn()
     initiator: AdminEntity;
 }

@@ -29,7 +29,7 @@ export class ApplicationService {
         if(!customer){
             return apiResponse.notFoundResponse('No customer found');
         }
-        const application = this.applicationRepository.create({...data, initiator});
+        const application = this.applicationRepository.create({...data, initiator, customer});
         await this.applicationRepository.save(application);
 
         return apiResponse.successResponseWithData("Application Created", application);
