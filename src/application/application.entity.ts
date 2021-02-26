@@ -29,8 +29,14 @@ export class ApplicationEntity {
     @Column({default: false, nullable: true})
     lineManagerApproval: boolean;
 
-    @Column({default: false})
-    ManagerApproval: boolean;
+    @Column({nullable: true})
+    lineManagerNote: string;
+
+    @Column({default: false, nullable: true})
+    managerApproval: boolean;
+
+    @Column({nullable: true})
+    managerNote: string;
 
     @ManyToOne(type => AdminEntity)
     @JoinColumn()
@@ -38,7 +44,7 @@ export class ApplicationEntity {
 
     @ManyToOne(type => AdminEntity)
     @JoinColumn()
-    Manager: AdminEntity;
+    manager: AdminEntity;
 
     @Column({nullable: true})
     firstAppointmentLetter: string;

@@ -1,4 +1,5 @@
-import { IsNumber, IsString } from "class-validator";
+import { IsBoolean, IsNumber, IsString } from "class-validator";
+import { ISchedule } from "src/loan/loan.dto";
 
 export class ApplicationDTO {
     @IsNumber()
@@ -12,6 +13,21 @@ export class ApplicationDTO {
 
     @IsNumber()
     interestRate: number;
+}
+
+export class ApprovalDTO {
+    @IsBoolean()
+    status: "true" | "false";
+
+    note?: string;
+
+    commencementDate?: Date;
+
+    totalLoan?: number;
+
+    endDate?: Date;
+
+    schedule?: ISchedule[];
 }
 
 export type TDocument = "firstAppointmentLetter" | "confirmationLetter" | "lastPaySlip" | "verificationPrintout" | "letterOfIntroduction";

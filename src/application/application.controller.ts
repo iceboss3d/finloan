@@ -6,7 +6,7 @@ import { IFile } from 'src/customer/customer.dto';
 import { GuarantorDTO } from 'src/guarantor/guarantor.dto';
 import { AuthGuard } from 'src/shared/ath.guard';
 import { User } from 'src/user/user.decorator';
-import { ApplicationDTO, TDocument } from './application.dto';
+import { ApplicationDTO, ApprovalDTO, TDocument } from './application.dto';
 import { ApplicationService } from './application.service';
 
 @Controller('api/application')
@@ -57,5 +57,19 @@ export class ApplicationController {
     }))
     uploadDocument(@User() user: IAdmin, @Param('id') id: string, @Query('document') document: TDocument, @UploadedFile() file: IFile) {
         return this.applicationService.uploadDocument(id, user, file, document);
+    }
+
+    @Post(':id/lineManager')
+    @UseGuards(new AuthGuard())
+    lineManagerApproval(@User() user: IAdmin, @Param('id') id: string, @Body() document: ApprovalDTO){
+        return this.applicationService.lineManagerApproval(id, user, document);
+    }
+
+    @Post(':id/manager') 
+    @UseGuards(new AuthGuard())
+    managerApproval(@User() user: IAdmin, @Param('id') id: string, @Body() document: ApprovalDTO){
+        console.log(document);
+        
+        return this.applicationService.managerApproval(id, user, document);
     }
 }

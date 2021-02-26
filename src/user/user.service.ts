@@ -53,8 +53,7 @@ export class UserService {
             firstName,
         };
         const templateId = "d-f5198ee6ad3542a7944748f7d280d9a1";
-        const result = mailer.send(from, personalization, dynamicTemplateData, templateId);
-        console.log(result);
+        await mailer.send(from, personalization, dynamicTemplateData, templateId);
 
         const savedUser = await this.userRepository.save(user);
         if (!savedUser) {
@@ -122,8 +121,7 @@ export class UserService {
                 firstName: user.firstName,
             };
             const templateId = "d-f5198ee6ad3542a7944748f7d280d9a1";
-            const emailStatus = await mailer.send(from, personalization, dynamicTemplateData, templateId);
-            console.log(emailStatus);
+            await mailer.send(from, personalization, dynamicTemplateData, templateId);
 
             return apiResponse.successResponse('OTP Sent');
         }
@@ -147,8 +145,7 @@ export class UserService {
                 firstName: user.firstName,
             };
             const templateId = "d-f5198ee6ad3542a7944748f7d280d9a1";
-            const mailStatus = await mailer.send(from, personalization, dynamicTemplateData, templateId);
-            console.log(mailStatus);
+            await mailer.send(from, personalization, dynamicTemplateData, templateId);
             return apiResponse.successResponse("Password Reset Email Sent");
 
         }

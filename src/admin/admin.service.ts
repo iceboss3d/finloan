@@ -50,8 +50,7 @@ export class AdminService {
         };
         
         const templateId = "d-f5198ee6ad3542a7944748f7d280d9a1";
-        const emailResponse = mailer.send(from, personalization, dynamicTemplateData, templateId);
-        console.log(emailResponse);
+        await mailer.send(from, personalization, dynamicTemplateData, templateId);
         
         if (!savedAdmin) {
             return apiResponse.errorResponse("Unable to Create Admin")
