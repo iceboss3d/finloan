@@ -10,6 +10,7 @@ import { GuarantorEntity } from 'src/guarantor/guarantor.entity';
 import { apiResponse } from 'src/helpers/apiResponse';
 import { Utility } from 'src/helpers/utility';
 import { LoanEntity } from 'src/loan/loan.entity';
+import { ScheduleEntity } from 'src/schedule/schedule.entity';
 import { Repository } from 'typeorm';
 import { ApplicationDTO, ApprovalDTO, TDocument } from './application.dto';
 import { ApplicationEntity } from './application.entity';
@@ -23,6 +24,8 @@ export class ApplicationService {
         private guarantorRepository: Repository<GuarantorEntity>,
         @InjectRepository(LoanEntity)
         private loanRepository: Repository<LoanEntity>,
+        @InjectRepository(ScheduleEntity)
+        private scheduleRepository: Repository<ScheduleEntity>,
         @InjectRepository(CustomerEntity)
         private customerRepository: Repository<CustomerEntity>
     ) { }
@@ -145,9 +148,19 @@ export class ApplicationService {
             commencementDate: data.commencementDate,
             endDate: data.endDate,
             totalLoan: data.totalLoan,
-            schedule: data.schedule
-        });
-        await this.loanRepository.save(loan);
+            application
+        })
+        const savedLoan = await this.loanRepository.save(loan);
+
+        for (let i = 0; i < data.schedule.length; i++) {
+            const element = data.schedule[i];
+            const presentSchedule = this.scheduleRepository.create({...element, loan: savedLoan})
+            const savedSchedule = await this.scheduleRepository.save(presentSchedule);
+            console.log(savedSchedule);
+            
+        }
+
+        await this.applicationRepository.update({id}, {loan: savedLoan});
 
         return apiResponse.successResponse('Loan Approval Updated');
     }

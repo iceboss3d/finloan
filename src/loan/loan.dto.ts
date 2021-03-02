@@ -8,5 +8,7 @@ export class LoanDTO {
 export interface ISchedule {
     paymentStatus: boolean;
     amount: number;
+    day: number;
     month: string;
+    year: string;
 }

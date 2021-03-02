@@ -1,7 +1,8 @@
 import { AdminEntity } from "src/admin/admin.entity";
 import { CustomerEntity } from "src/customer/customer.entity";
 import { GuarantorEntity } from "src/guarantor/guarantor.entity";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { LoanEntity } from "src/loan/loan.entity";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity('application')
 export class ApplicationEntity {
@@ -72,4 +73,8 @@ export class ApplicationEntity {
     @ManyToOne(type => AdminEntity, {cascade: true, eager: true})
     @JoinColumn()
     initiator: AdminEntity;
+
+    @OneToOne(type => LoanEntity, loan => loan.application, {cascade: true, eager: true})
+    @JoinColumn()
+    loan: LoanEntity;
 }
