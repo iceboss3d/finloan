@@ -18,7 +18,7 @@ export class AdminCreateDTO {
     phoneNumber: string;
 
     @IsString()
-    role: string;
+    role: TAdminRole;
 }
 
 export class AdminLoginDTO {
@@ -49,8 +49,10 @@ export interface IAdmin {
     lastName: string;
     email: string;
     phoneNumber: string;
-    role: string;
+    role: TAdminRole;
     status: boolean;
     iat: number;
     exp: number;
 }
+
+export type TAdminRole = "super-admin" | "admin" | "lineManager" | "manager";

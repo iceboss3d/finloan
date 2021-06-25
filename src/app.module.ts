@@ -20,12 +20,16 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { InventoryController } from './inventory/inventory.controller';
 import { InventoryModule } from './inventory/inventory.module';
+import { GuarantorService } from './guarantor/guarantor.service';
+import { LoanService } from './loan/loan.service';
+import { LoanModule } from './loan/loan.module';
+import { ScheduleModule } from './schedule/schedule.module';
 
 @Module({
   imports: [ServeStaticModule.forRoot({
     rootPath: join(__dirname, '..', 'files'),
     exclude: ['/api*'],
-  }), AuthModule, TypeOrmModule.forRoot(), UserModule, HouseModule, AdminModule, CustomerModule, ApplicationModule, InventoryModule],
+  }), AuthModule, TypeOrmModule.forRoot(), UserModule, HouseModule, AdminModule, CustomerModule, ApplicationModule, InventoryModule, LoanModule, ScheduleModule],
   controllers: [AppController, AuthController, HouseController, InventoryController],
   providers: [AppService, AuthService, {
     provide: APP_FILTER,

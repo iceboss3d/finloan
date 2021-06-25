@@ -1,16 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import dayjs from 'dayjs';
-import moment from 'moment';
 import { IAdmin } from 'src/admin/admin.dto';
 import { IFile } from 'src/customer/customer.dto';
 import { CustomerEntity } from 'src/customer/customer.entity';
 import { GuarantorDTO } from 'src/guarantor/guarantor.dto';
 import { GuarantorEntity } from 'src/guarantor/guarantor.entity';
 import { apiResponse } from 'src/helpers/apiResponse';
-import { Utility } from 'src/helpers/utility';
-import { LoanEntity } from 'src/loan/loan.entity';
-import { ScheduleEntity } from 'src/schedule/schedule.entity';
+import { LoanService } from 'src/loan/loan.service';
 import { Repository } from 'typeorm';
 import { ApplicationDTO, ApprovalDTO, TDocument } from './application.dto';
 import { ApplicationEntity } from './application.entity';
@@ -22,12 +18,9 @@ export class ApplicationService {
     private applicationRepository: Repository<ApplicationEntity>,
     @InjectRepository(GuarantorEntity)
     private guarantorRepository: Repository<GuarantorEntity>,
-    @InjectRepository(LoanEntity)
-    private loanRepository: Repository<LoanEntity>,
-    @InjectRepository(ScheduleEntity)
-    private scheduleRepository: Repository<ScheduleEntity>,
     @InjectRepository(CustomerEntity)
     private customerRepository: Repository<CustomerEntity>,
+    private readonly loanService: LoanService,
   ) {}
 
   async newApplication(
@@ -35,9 +28,6 @@ export class ApplicationService {
     data: ApplicationDTO,
     customerId: string,
   ) {
-    if (initiator.role === 'customer') {
-      return apiResponse.unauthorizedResponse('Unauthorised');
-    }
     const customer = await this.customerRepository.findOne(customerId);
     if (!customer) {
       return apiResponse.notFoundResponse('No customer found');
@@ -55,14 +45,7 @@ export class ApplicationService {
     );
   }
 
-  async updateApplication(
-    id: string,
-    user: IAdmin,
-    data: Partial<ApplicationDTO>,
-  ) {
-    if (user.role === 'customer') {
-      return apiResponse.unauthorizedResponse('Unauthorised');
-    }
+  async updateApplication(id: string, data: Partial<ApplicationDTO>) {
     const application = await this.applicationRepository.findOne(id);
     if (!application) {
       return apiResponse.notFoundResponse('Application not found');
@@ -71,24 +54,12 @@ export class ApplicationService {
     return apiResponse.successResponse('Application Updated');
   }
 
-  async viewApplication(id: string, user: IAdmin) {
-    if (user.role === 'customer') {
-      return apiResponse.unauthorizedResponse('Unauthorised');
-    }
+  async getApplicationById(id: string) {
     const application = await this.applicationRepository.findOne(id);
-    if (!application) {
-      return apiResponse.notFoundResponse('Application not Found');
-    }
-    return apiResponse.successResponseWithData(
-      'Application Fetched',
-      application,
-    );
+    return application;
   }
 
-  async viewApplications(user: IAdmin) {
-    if (user.role === 'customer') {
-      return apiResponse.unauthorizedResponse('Unauthorised');
-    }
+  async viewApplications() {
     const applications = await this.applicationRepository.find();
 
     return apiResponse.successResponseWithData(
@@ -97,10 +68,7 @@ export class ApplicationService {
     );
   }
 
-  async addGuarantor(id: string, user: IAdmin, data: GuarantorDTO) {
-    if (user.role === 'customer') {
-      return apiResponse.unauthorizedResponse('Unauthorised');
-    }
+  async addGuarantor(id: string, data: GuarantorDTO) {
     const application = await this.applicationRepository.findOne(id);
     if (!application) {
       return apiResponse.notFoundResponse('Application not Found');
@@ -112,15 +80,7 @@ export class ApplicationService {
     return apiResponse.successResponseWithData('Guarantor Added', guarantor);
   }
 
-  async uploadDocument(
-    id: string,
-    user: IAdmin,
-    file: IFile,
-    document: TDocument,
-  ) {
-    if (user.role === 'customer') {
-      return apiResponse.unauthorizedResponse('Unauthorised');
-    }
+  async uploadDocument(id: string, file: IFile, document: TDocument) {
     const application = await this.applicationRepository.findOne(id);
     if (!application) {
       return apiResponse.notFoundResponse('Application not Found');
@@ -132,8 +92,19 @@ export class ApplicationService {
     return apiResponse.successResponse(`${document} uploaded`);
   }
 
-  async lineManagerApproval(id: string, user: IAdmin, data: ApprovalDTO) {
-    if (user.role !== 'lineManager') {
+  /**
+   * A method for Line Manager Approval
+   * @param id Application Id
+   * @param adminUser Admin User of role lineManager
+   * @param data Loan Approval Data
+   * @returns
+   */
+  async lineManagerApproval(
+    id: string,
+    adminUser: IAdmin,
+    data: ApprovalDTO,
+  ): Promise<HttpException> {
+    if (adminUser.role !== 'lineManager') {
       return apiResponse.unauthorizedResponse(
         'Only Line Managers are Allowed to perform this action',
       );
@@ -142,6 +113,7 @@ export class ApplicationService {
     if (!application) {
       return apiResponse.notFoundResponse('Application not Found');
     }
+
     if (application.lineManagerApproval) {
       return apiResponse.existingResponse(
         'Loan already approved by a Line Manager',
@@ -152,26 +124,37 @@ export class ApplicationService {
       {
         lineManagerApproval: eval(data.status),
         lineManagerNote: data.note,
-        lineManager: user,
+        lineManager: adminUser,
       },
     );
-    
-    // Return if !Approved
+
+    // Return if Loan isn't Approved
     if (!data.status) {
-      return apiResponse.successResponse('Loan Approval Updated');
+      return apiResponse.successResponse('Loan Denied');
     }
 
+    const loan = await this.loanService.createLoan(
+      { commencementDate: data.commencementDate, approvedBy: adminUser },
+      application,
+    );
     
-    return apiResponse.successResponse('Loan Approval Updated');
+    await this.applicationRepository.update(id, { loan });
+    
+    return apiResponse.successResponse('Loan Approved');
   }
+
   /**
    * A function for 2nd Approval and disbursal
    * @param id Application ID
    * @param user Authenticated User
    * @param data Approval DTO
    */
-  async managerApproval(id: string, user: IAdmin, data: ApprovalDTO) {
-    if (user.role !== 'manager') {
+  async managerApproval(
+    id: string,
+    adminUser: IAdmin,
+    data: ApprovalDTO,
+  ): Promise<HttpException> {
+    if (adminUser.role !== 'manager') {
       return apiResponse.unauthorizedResponse(
         'Only Managers are Allowed to perform this action',
       );
@@ -188,39 +171,22 @@ export class ApplicationService {
         'Loan needs to be approved by a Line Manager, before Manager Approval',
       );
     }
+
+    await this.loanService.disburseLoan(application.loan.id, adminUser);
+
     await this.applicationRepository.update(
       { id },
       {
         managerApproval: eval(data.status),
         managerNote: data.note,
-        manager: user,
+        manager: adminUser,
       },
     );
     // Return if !Approved
     if (!data.status) {
-      return apiResponse.successResponse('Loan Approval Updated');
+      return apiResponse.successResponse('Loan Denied');
     }
 
-    // Create Loan Instance and Save
-    const loan = this.loanRepository.create({
-      commencementDate: data.commencementDate,
-      endDate: data.endDate,
-      totalLoan: data.totalLoan,
-      application,
-    });
-    const savedLoan = await this.loanRepository.save(loan);
-
-    for (let i = 0; i < data.schedule.length; i++) {
-      const element = data.schedule[i];
-      const presentSchedule = this.scheduleRepository.create({
-        ...element,
-        loan: savedLoan,
-      });
-      await this.scheduleRepository.save(presentSchedule);
-    }
-
-    await this.applicationRepository.update({ id }, { loan: savedLoan });
-
-    return apiResponse.successResponse('Loan Approval Updated');
+    return apiResponse.successResponse('Loan Approved');
   }
 }

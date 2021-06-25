@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IAdmin } from 'src/admin/admin.dto';
 import { AdminEntity } from 'src/admin/admin.entity';
 import { apiResponse } from 'src/helpers/apiResponse';
+import { ErrorMessages } from 'src/helpers/error-messages.enum';
 import { Repository } from 'typeorm';
 import { CustomerCreateDTO, CustomerDataDTO, CustomerEmploymentDTO, CustomerPaymentDTO, IFile } from './customer.dto';
 import { CustomerEntity } from './customer.entity';
@@ -33,33 +34,33 @@ export class CustomerService {
         return apiResponse.successResponseWithData("Successfully Fetched all Customers", customers);
     }
 
-    async getCustomer(id: string, userRole: string) {
-        if (userRole === "customer") {
-            return apiResponse.unauthorizedResponse("Only Admins can view customers");
-        }
-        const customer = await this.customerRepository.findOne({ where: { id } });
-        return apiResponse.successResponseWithData("Successfully Fetched Customer", customer);
+    async getCustomerById(id: string) {
+        const customer = await this.customerRepository.findOne(id);
+        return customer;
+    }
+
+    async getCustomerByEmail(email: string) {
+        const customer = await this.customerRepository.findOne({where: {email}});
+        return customer;
     }
 
     async createCustomer(user: IAdmin, data: CustomerCreateDTO) {
-        if (user.role === "customer") {
-            return apiResponse.unauthorizedResponse("Only Admins can Create Customers");
+        const customer = this.getCustomerByEmail(data.email);
+        if(customer){
+            return new BadRequestException(ErrorMessages.EXISTING_RESOURCE);
         }
-        const customer = this.customerRepository.create({ ...data, createdBy: user });
-        await this.customerRepository.save(customer);
-        return apiResponse.successResponseWithData("Successfully Created Customer", customer);
+        const newCustomer = this.customerRepository.create({ ...data, createdBy: user });
+        await this.customerRepository.save(newCustomer);
+        return customer
     }
 
-    async updateCustomer(id: string, role: string, data: Partial<CustomerCreateDTO>) {
-        if(role === "customer") {
-            return apiResponse.unauthorizedResponse("Unauthorised");
-        }
-        const customer = await this.customerRepository.findOne({where: {id}});
+    async updateCustomer(id: string, data: Partial<CustomerCreateDTO>) {
+        const customer = await this.getCustomerById(id);
         if (!customer) {
-            return apiResponse.notFoundResponse("Customer not found");
+            return new NotFoundException(ErrorMessages.NOT_FOUND);
         }
-        await this.customerRepository.update({id}, data);
-        return apiResponse.successResponse("Customer Updated");
+        const updatedCustomer = await this.customerRepository.update({id}, data);
+        return updatedCustomer;
     }
 
     async addCustomerData(id: string, role: string, data: Partial<CustomerDataDTO>) {

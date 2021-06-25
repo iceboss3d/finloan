@@ -21,7 +21,7 @@ export class CustomerController {
     @Get(":id")
     @UseGuards(new AuthGuard())
     getCustomer(@User('role') user: string, @Param('id') id: string) {
-        return this.customerService.getCustomer(id, user);
+        return this.customerService.getCustomerById(id);
     }
 
     @Post('create')
@@ -35,7 +35,7 @@ export class CustomerController {
     @UsePipes(new ValidationPipe())
     @UseGuards(new AuthGuard())
     updateCustomer(@User('role') user: string, @Body() data: Partial<CustomerCreateDTO>, @Param('id') id: string) {
-        return this.customerService.updateCustomer(id, user, data);
+        return this.customerService.updateCustomer(id, data);
     }
 
     @Post('data/:customerId')

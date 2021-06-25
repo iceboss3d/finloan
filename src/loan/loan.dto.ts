@@ -1,8 +1,11 @@
-import { IsDate } from "class-validator";
+import { IsDate, IsNumber } from "class-validator";
+import { IAdmin } from "src/admin/admin.dto";
 
 export class LoanDTO {
     @IsDate()
     commencementDate: Date;
+
+    approvedBy: IAdmin;
 }
 
 export interface ISchedule {

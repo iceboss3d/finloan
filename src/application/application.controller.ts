@@ -13,34 +13,34 @@ import { ApplicationService } from './application.service';
 export class ApplicationController {
     constructor(private applicationService: ApplicationService) { }
 
-    @Post('new/:id')
+    @Post('new/:customerId')
     @UseGuards(new AuthGuard())
-    newApplication(@User() user: IAdmin, @Body() data: ApplicationDTO, @Param('id') customer: string) {
-        return this.applicationService.newApplication(user, data, customer);
+    newApplication(@User() adminUser: IAdmin, @Body() paylaod: ApplicationDTO, @Param('customerId') customerId: string) {
+        return this.applicationService.newApplication(adminUser, paylaod, customerId);
     }
 
     @Put('update/:id')
     @UseGuards(new AuthGuard())
-    updateApplication(@User() user: IAdmin, data: Partial<ApplicationDTO>, @Param('id') id: string) {
-        return this.applicationService.updateApplication(id, user, data);
+    updateApplication(data: Partial<ApplicationDTO>, @Param('id') id: string) {
+        return this.applicationService.updateApplication(id, data);
     }
 
     @Get('view-all')
     @UseGuards(new AuthGuard())
-    viewApplications(@User() user: IAdmin) {
-        return this.applicationService.viewApplications(user);
+    viewApplications() {
+        return this.applicationService.viewApplications();
     }
 
     @Get('view/:id')
     @UseGuards(new AuthGuard())
     viewApplication(@User() user: IAdmin, @Param('id') id: string) {
-        return this.applicationService.viewApplication(id, user);
+        return this.applicationService.getApplicationById(id);
     }
 
     @Post(':id/add-guarantor')
     @UseGuards(new AuthGuard())
-    addGuarantor(@User() user: IAdmin, @Param('id') id: string, @Body() data: GuarantorDTO) {
-        return this.applicationService.addGuarantor(id, user, data)
+    addGuarantor(@Param('id') id: string, @Body() data: GuarantorDTO) {
+        return this.applicationService.addGuarantor(id, data)
     }
 
     @Post(':id/upload-document')
@@ -55,8 +55,8 @@ export class ApplicationController {
             }
         })
     }))
-    uploadDocument(@User() user: IAdmin, @Param('id') id: string, @Query('document') document: TDocument, @UploadedFile() file: IFile) {
-        return this.applicationService.uploadDocument(id, user, file, document);
+    uploadDocument(@Param('id') id: string, @Query('document') document: TDocument, @UploadedFile() file: IFile) {
+        return this.applicationService.uploadDocument(id, file, document);
     }
 
     @Post(':id/lineManager')
@@ -68,7 +68,7 @@ export class ApplicationController {
     @Post(':id/manager') 
     @UseGuards(new AuthGuard())
     managerApproval(@User() user: IAdmin, @Param('id') id: string, @Body() document: ApprovalDTO){
-        console.log(document);
+        console.log({id});
         
         return this.applicationService.managerApproval(id, user, document);
     }
