@@ -22,12 +22,6 @@ export class ApprovalDTO {
     note?: string;
 
     commencementDate?: Date;
-
-    totalLoan?: number;
-
-    endDate?: Date;
-
-    schedule?: ISchedule[];
 }
 
 export type TDocument = "firstAppointmentLetter" | "confirmationLetter" | "lastPaySlip" | "verificationPrintout" | "letterOfIntroduction";

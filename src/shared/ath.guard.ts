@@ -25,10 +25,15 @@ export class AuthGuard implements CanActivate {
             }
 
             const token = auth.split(' ')[1];
-            jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+            jwt.verify(token, process.env.JWT_SECRET, (err, decoded: any) => {
                 if (err) {
                     const message = err.message;
                     rej(apiResponse.unauthorizedResponse(message));
+                }
+                const roles = ["super-admin", "admin", "lineManager", "manager"];
+                
+                if (!roles.find(role => role === decoded.role)) {                    
+                    rej(apiResponse.unauthorizedResponse("Unauthorized"));
                 }
                 res(decoded);
             });
