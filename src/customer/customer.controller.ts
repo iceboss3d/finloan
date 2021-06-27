@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put, UploadedFile, UseGuards, UseInterceptors, UsePipes } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, UploadedFile, UseGuards, UseInterceptors, UsePipes } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer'
 import { IAdmin } from 'src/admin/admin.dto';
@@ -96,4 +96,9 @@ export class CustomerController {
         return this.customerService.updateCustomerPayment(id, user, data);
     }
 
+    @Delete(':id')
+    @UseGuards(new AuthGuard())
+    deleteCustomer(@Param('id') id: string){
+        return this.customerService.deleteCustomer(id);
+    }
 }
