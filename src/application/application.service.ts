@@ -55,8 +55,10 @@ export class ApplicationService {
   }
 
   async getApplicationById(id: string) {
+    
     const application = await this.applicationRepository.findOne(id);
-    return application;
+    
+    return apiResponse.successResponseWithData("Application Retrieved", application);
   }
 
   async viewApplications() {

@@ -34,6 +34,9 @@ export class LoanEntity{
     @Column({nullable: true, default: false})
     disburseStatus: boolean;
 
+    @Column({nullable: true, default: false})
+    status: boolean;
+
     @ManyToOne(type => AdminEntity)
     disbursedBy: AdminEntity;
 
