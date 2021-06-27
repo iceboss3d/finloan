@@ -15,6 +15,9 @@ export class ScheduleEntity {
     @ManyToOne(type => LoanEntity, loan => loan.schedule)
     loan: LoanEntity;
 
+    @Column({nullable: true})
+    staffId: string;
+
     @Column()
     paymentStatus: boolean;
 

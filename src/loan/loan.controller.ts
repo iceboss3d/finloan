@@ -1,4 +1,7 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { IFile } from 'src/customer/customer.dto';
 import { AuthGuard } from 'src/shared/ath.guard';
 import { LoanService } from './loan.service';
 
@@ -22,6 +25,22 @@ export class LoanController {
     @UseGuards(new AuthGuard)
     getAllCompleted(){
         return this.loanService.getAllCompletedLoans();
+    }
+
+    @Post("/batch-upload")
+    @UseGuards(new AuthGuard)
+    @UseInterceptors(FileInterceptor('file', {
+        storage: diskStorage({
+            destination: "./files/payments",
+            filename: (req, file, cb) => {
+                const fileNameSplit = file.originalname.split(".");
+                const fileExt = fileNameSplit[fileNameSplit.length - 1];
+                cb(null, `${fileNameSplit[0]}-${Date.now()}.${fileExt}`);
+            }
+        })
+    }))
+    batchUpload(@UploadedFile() file: IFile){
+        return this.loanService.batchUpload(file);
     }
 
     @Get(":loanId")

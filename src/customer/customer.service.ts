@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { IAdmin } from 'src/admin/admin.dto';
 import { AdminEntity } from 'src/admin/admin.entity';
 import { apiResponse } from 'src/helpers/apiResponse';
-import { ErrorMessages } from 'src/helpers/error-messages.enum';
 import { Repository } from 'typeorm';
 import { CustomerCreateDTO, CustomerDataDTO, CustomerEmploymentDTO, CustomerPaymentDTO, IFile } from './customer.dto';
 import { CustomerEntity } from './customer.entity';
@@ -36,31 +35,32 @@ export class CustomerService {
 
     async getCustomerById(id: string) {
         const customer = await this.customerRepository.findOne(id);
-        return customer;
+        return apiResponse.successResponseWithData("Customer Fetched", customer);
     }
 
     async getCustomerByEmail(email: string) {
         const customer = await this.customerRepository.findOne({where: {email}});
-        return customer;
+        return apiResponse.successResponseWithData("Customer fetched", customer);
     }
 
     async createCustomer(user: IAdmin, data: CustomerCreateDTO) {
-        const customer = this.getCustomerByEmail(data.email);
+        const customer = await this.customerRepository.findOne({ where: {email: data.email}});
+        
         if(customer){
-            return new BadRequestException(ErrorMessages.EXISTING_RESOURCE);
+            return apiResponse.existingResponse("Customer with such email already exists");
         }
         const newCustomer = this.customerRepository.create({ ...data, createdBy: user });
         await this.customerRepository.save(newCustomer);
-        return customer
+        return apiResponse.successResponseWithData("Successfully Created Customer", newCustomer);
     }
 
     async updateCustomer(id: string, data: Partial<CustomerCreateDTO>) {
-        const customer = await this.getCustomerById(id);
+        const customer = await this.customerRepository.findOne(id);
         if (!customer) {
-            return new NotFoundException(ErrorMessages.NOT_FOUND);
+            return apiResponse.notFoundResponse("Customer not found");
         }
         const updatedCustomer = await this.customerRepository.update({id}, data);
-        return updatedCustomer;
+        return apiResponse.successResponseWithData("Customer updated", updatedCustomer);
     }
 
     async addCustomerData(id: string, role: string, data: Partial<CustomerDataDTO>) {
@@ -94,7 +94,6 @@ export class CustomerService {
             return apiResponse.notFoundResponse("Customer not found");
         }
         const passportUrl = data.filename;
-        console.log(passportUrl);
         
         await this.customerDataRepository.update({ id: customer.data.id }, { passportUrl });
         return apiResponse.successResponseWithData('Passport Uploaded', { passportUrl });
@@ -142,5 +141,14 @@ export class CustomerService {
         }
         await this.customerPaymentRepository.update({id: customer.data.id}, data);
         return apiResponse.successResponse("Customer Payment Updated");
+    }
+
+    async deleteCustomer(id: string){
+        const customer = await this.customerRepository.findOne(id);
+        if(!customer){
+            return apiResponse.notFoundResponse("Customer not found");
+        }
+        await this.customerRepository.delete(id);
+        return apiResponse.successResponse("Customer Delete Success");
     }
 }

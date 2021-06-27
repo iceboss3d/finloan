@@ -3,17 +3,21 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as dayjs from 'dayjs';
 import { IAdmin } from 'src/admin/admin.dto';
 import { ApplicationEntity } from 'src/application/application.entity';
+import { IFile } from 'src/customer/customer.dto';
 import { apiResponse } from 'src/helpers/apiResponse';
 import { ScheduleService } from 'src/schedule/schedule.service';
-import { Repository } from 'typeorm';
+import { getConnection, In, Repository } from 'typeorm';
 import { LoanDTO } from './loan.dto';
 import { LoanEntity } from './loan.entity';
-
+import excelToJson = require('convert-excel-to-json');
+import { ScheduleEntity } from 'src/schedule/schedule.entity';
 @Injectable()
 export class LoanService {
   constructor(
     @InjectRepository(LoanEntity)
     private loanRepository: Repository<LoanEntity>,
+    @InjectRepository(ScheduleEntity)
+    private scheduleRepository: Repository<ScheduleEntity>,
     private readonly scheduleService: ScheduleService,
   ) {}
 
@@ -58,7 +62,7 @@ export class LoanService {
 
   async getAllCompletedLoans(): Promise<HttpException> {
     const loans = await this.loanRepository.find({
-      where: { status: true , disburseStatus: true},
+      where: { status: true, disburseStatus: true },
       relations: ['application'],
     });
     return apiResponse.successResponseWithData('Loans Fetched', loans);
@@ -80,5 +84,34 @@ export class LoanService {
       return apiResponse.notFoundResponse('No Loan Found');
     }
     return apiResponse.successResponseWithData('Loan Fetched', loan);
+  }
+
+  async batchUpload(loan: IFile) {
+    const upload = excelToJson({
+      sourceFile: loan.path,
+      header: {
+        rows: 1,
+      },
+      sheets: ['Sheet1'],
+      columnToKey: {
+        A: 'staffId',
+        B: 'month',
+        C: 'amount',
+      },
+    });
+
+    const data: any = upload.Sheet1;
+    console.log(data);
+
+    data.forEach(async (element) => {
+      console.log(element);
+      
+      await this.scheduleRepository.update(
+        { staffId: element.staffId, month: element.month },
+        { paymentStatus: true },
+      );
+    });
+
+    return apiResponse.successResponseWithData('Data from upload', data);
   }
 }

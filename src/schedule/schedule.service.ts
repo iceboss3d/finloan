@@ -22,7 +22,8 @@ export class ScheduleService {
                 day: parseInt(dayjs(schedule.commencementDate).add(index, 'month').format('D')),
                 month: dayjs(schedule.commencementDate).add(index, 'month').format('MMMM'),
                 year: (dayjs(schedule.commencementDate).add(index, 'month').format('YYYY')),
-                loan
+                loan,
+                staffId: loan.application.customer.employment.staffId
             });
             await this.scheduleRepository.save(presentSchedule);
         }
